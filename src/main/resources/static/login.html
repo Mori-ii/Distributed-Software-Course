@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Sale Lab - Sign In</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .panel {
+            background: #fff; border-radius: 16px; width: 420px; padding: 44px 38px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+        .panel h1 { text-align: center; font-size: 22px; color: #333; margin-bottom: 8px; }
+        .panel .subtitle { text-align: center; color: #999; font-size: 13px; margin-bottom: 30px; }
+        .nav { display: flex; gap: 0; margin-bottom: 28px; border-radius: 8px; overflow: hidden; border: 2px solid #667eea; }
+        .nav button {
+            flex: 1; padding: 10px 0; border: none; background: #fff; font-size: 14px;
+            cursor: pointer; color: #667eea; font-weight: 600; transition: all 0.2s;
+        }
+        .nav button.on { background: #667eea; color: #fff; }
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field input {
+            width: 100%; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
+            font-size: 14px; outline: none; transition: border 0.2s;
+        }
+        .field input:focus { border-color: #667eea; }
+        .submit-btn {
+            width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px;
+            cursor: pointer; color: #fff; font-weight: 600; margin-top: 6px;
+            background: linear-gradient(135deg, #667eea, #764ba2); transition: opacity 0.2s;
+        }
+        .submit-btn:hover { opacity: 0.9; }
+        .notice { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 13px; display: none; }
+        .notice.ok { display: block; background: #edf7ed; border: 1px solid #a3d9a5; color: #1b5e20; }
+        .notice.err { display: block; background: #fdecea; border: 1px solid #f5c6cb; color: #b71c1c; }
+        .highlight-id { font-size: 20px; font-weight: bold; color: #667eea; }
+        .switch-tip { font-size: 12px; color: #aaa; margin-top: 18px; text-align: center; }
+        .switch-tip a { color: #667eea; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h1>Flash Sale Lab</h1>
+    <p class="subtitle">Distributed Software Engineering</p>
+
+    <div class="nav">
+        <button id="navSignIn" class="on" onclick="toggle('signin')">Sign In</button>
+        <button id="navSignUp" onclick="toggle('signup')">Sign Up</button>
+    </div>
+
+    <!-- sign in -->
+    <div id="signinBox">
+        <div class="field">
+            <label>Member ID or Alias</label>
+            <input id="siAccount" type="text" placeholder="Enter your ID or alias">
+        </div>
+        <div class="field">
+            <label>Password</label>
+            <input id="siPwd" type="password" placeholder="Enter password">
+        </div>
+        <button class="submit-btn" onclick="handleSignIn()">Sign In</button>
+        <div id="siNotice" class="notice"></div>
+        <p class="switch-tip">New here? <a href="#" onclick="toggle('signup');return false;">Create an account</a></p>
+    </div>
+
+    <!-- sign up -->
+    <div id="signupBox" style="display:none;">
+        <div class="field">
+            <label>Alias (not purely numeric)</label>
+            <input id="suAlias" type="text" placeholder="Choose an alias" maxlength="50">
+        </div>
+        <div class="field">
+            <label>Password (min 6 chars)</label>
+            <input id="suPwd" type="password" placeholder="Create a password" minlength="6">
+        </div>
+        <div class="field">
+            <label>Confirm Password</label>
+            <input id="suPwd2" type="password" placeholder="Re-enter password">
+        </div>
+        <button class="submit-btn" onclick="handleSignUp()">Create Account</button>
+        <div id="suNotice" class="notice"></div>
+        <p class="switch-tip">Already have an account? <a href="#" onclick="toggle('signin');return false;">Sign in</a></p>
+    </div>
+</div>
+
+<script>
+    function toggle(view) {
+        document.getElementById('navSignIn').className = view === 'signin' ? 'on' : '';
+        document.getElementById('navSignUp').className = view === 'signup' ? 'on' : '';
+        document.getElementById('signinBox').style.display = view === 'signin' ? '' : 'none';
+        document.getElementById('signupBox').style.display = view === 'signup' ? '' : 'none';
+        document.getElementById('siNotice').className = 'notice';
+        document.getElementById('suNotice').className = 'notice';
+    }
+
+    async function handleSignIn() {
+        const account = document.getElementById('siAccount').value.trim();
+        const pwd = document.getElementById('siPwd').value;
+        const n = document.getElementById('siNotice');
+        if (!account) { notice(n, 'Please enter your ID or alias', 'err'); return; }
+        if (!pwd)     { notice(n, 'Please enter your password', 'err'); return; }
+
+        try {
+            const res = await fetch('/v1/account/sign-in', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `account=${encodeURIComponent(account)}&password=${encodeURIComponent(pwd)}`
+            });
+            const j = await res.json();
+            if (j.status === 200) {
+                sessionStorage.setItem('memberId', j.payload.id);
+                sessionStorage.setItem('alias', j.payload.alias);
+                notice(n, 'Success! Redirecting...', 'ok');
+                setTimeout(() => location.href = 'index.html', 600);
+            } else {
+                notice(n, j.message, 'err');
+            }
+        } catch (e) { notice(n, 'Request failed: ' + e.message, 'err'); }
+    }
+
+    async function handleSignUp() {
+        const alias = document.getElementById('suAlias').value.trim();
+        const pwd   = document.getElementById('suPwd').value;
+        const pwd2  = document.getElementById('suPwd2').value;
+        const n     = document.getElementById('suNotice');
+
+        if (!alias)              { notice(n, 'Please enter an alias', 'err'); return; }
+        if (/^\d+$/.test(alias)) { notice(n, 'Alias must not be purely numeric', 'err'); return; }
+        if (!pwd || pwd.length < 6) { notice(n, 'Password must be at least 6 characters', 'err'); return; }
+        if (pwd !== pwd2)        { notice(n, 'Passwords do not match', 'err'); return; }
+
+        try {
+            const res = await fetch('/v1/account/sign-up', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `alias=${encodeURIComponent(alias)}&password=${encodeURIComponent(pwd)}&confirmPassword=${encodeURIComponent(pwd2)}`
+            });
+            const j = await res.json();
+            if (j.status === 200) {
+                notice(n, `Account created! Your Member ID: <span class="highlight-id">${j.payload.id}</span><br>Use this ID or your alias to sign in.`, 'ok');
+            } else {
+                notice(n, j.message, 'err');
+            }
+        } catch (e) { notice(n, 'Request failed: ' + e.message, 'err'); }
+    }
+
+    function notice(el, html, cls) { el.className = 'notice ' + cls; el.innerHTML = html; }
+
+    document.getElementById('siAccount').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('siPwd').focus(); });
+    document.getElementById('siPwd').addEventListener('keydown', e => { if (e.key === 'Enter') handleSignIn(); });
+    document.getElementById('suPwd2').addEventListener('keydown', e => { if (e.key === 'Enter') handleSignUp(); });
+</script>
+</body>
+</html>
