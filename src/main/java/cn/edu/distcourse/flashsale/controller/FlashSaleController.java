@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 秒杀抢购服务接口
+ */
 @RestController
 @RequestMapping("/v1/flash")
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class FlashSaleController {
     private final FlashSaleService flashSaleService;
     private final TradeOrderMapper tradeOrderMapper;
 
+    /** 执行秒杀抢购 */
     @PostMapping("/snap")
     public ApiResponse<TradeOrder> snap(@RequestParam Long memberId,
                                         @RequestParam Long flashId) {
@@ -28,6 +32,7 @@ public class FlashSaleController {
         }
     }
 
+    /** 查询用户的历史订单 */
     @GetMapping("/my-orders")
     public ApiResponse<List<TradeOrder>> myOrders(@RequestParam Long memberId) {
         return ApiResponse.ok(tradeOrderMapper.findByMemberId(memberId));

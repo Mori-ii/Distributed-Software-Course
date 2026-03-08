@@ -3,9 +3,9 @@ package cn.edu.distcourse.flashsale.common;
 import lombok.Getter;
 
 /**
- * Generic API response wrapper.
+ * 统一接口响应封装类
  *
- * @param <T> payload type
+ * @param <T> 响应数据类型
  */
 @Getter
 public class ApiResponse<T> {
@@ -20,10 +20,12 @@ public class ApiResponse<T> {
         this.payload = payload;
     }
 
+    /** 成功响应 */
     public static <T> ApiResponse<T> ok(T payload) {
         return new ApiResponse<>(200, "ok", payload);
     }
 
+    /** 失败响应 */
     public static <T> ApiResponse<T> fail(String message) {
         return new ApiResponse<>(500, message, null);
     }

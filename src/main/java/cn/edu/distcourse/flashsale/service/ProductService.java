@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 商品业务逻辑
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -18,7 +21,10 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final FlashItemMapper flashItemMapper;
 
-    /** Build a merged list of currently active flash products. */
+    /**
+     * 查询当前生效的秒杀商品列表
+     * 将秒杀配置与商品基本信息合并为视图对象返回
+     */
     public List<FlashProductVO> listActiveFlashProducts() {
         List<FlashItem> activeItems = flashItemMapper.findActive();
         List<FlashProductVO> result = new ArrayList<>();

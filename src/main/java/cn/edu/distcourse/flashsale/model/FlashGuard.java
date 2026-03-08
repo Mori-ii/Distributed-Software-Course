@@ -3,19 +3,20 @@ package cn.edu.distcourse.flashsale.model;
 import lombok.Data;
 
 /**
- * Idempotency guard for flash-sale orders.
- * A unique index on (member_id, product_id) prevents duplicate purchases at the DB level.
- * Maps to {@code t_flash_guard}.
+ * 秒杀防重购记录实体，对应 t_flash_guard 表
+ * 通过 (member_id, product_id) 联合唯一索引防止同一用户重复购买同一商品
  */
 @Data
 public class FlashGuard {
 
     private Long id;
 
+    /** 购买用户ID */
     private Long memberId;
 
-    /** FK to t_trade_order */
+    /** 关联订单ID，外键关联 t_trade_order */
     private Long orderId;
 
+    /** 购买商品ID */
     private Long productId;
 }

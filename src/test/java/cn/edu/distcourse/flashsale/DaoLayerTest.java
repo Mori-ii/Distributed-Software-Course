@@ -13,8 +13,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration tests for the DAO (Mapper) layer.
- * Each test marked @Transactional rolls back automatically so the database stays clean.
+ * 数据访问层集成测试
+ * 标记 @Transactional 的测试方法会在执行后自动回滚，不影响数据库数据
  */
 @SpringBootTest
 class DaoLayerTest {
@@ -26,158 +26,158 @@ class DaoLayerTest {
     @Autowired private TradeOrderMapper tradeOrderMapper;
     @Autowired private FlashGuardMapper flashGuardMapper;
 
-    // ---------- MemberMapper ----------
+    // ---------- 用户表测试 ----------
 
     @Test
-    void lookupMemberById() {
+    void 根据ID查询用户() {
         Member m = memberMapper.findById(1001L);
-        System.out.println("[Test] lookupMemberById => " + m);
-        assertNotNull(m, "Member 1001 should exist");
+        System.out.println("[测试] 根据ID查询用户 => " + m);
+        assertNotNull(m, "ID为1001的用户应存在");
         assertEquals("TestUser_Alpha", m.getAlias());
     }
 
     @Test
     @Transactional
-    void insertMember() {
+    void 新增用户() {
         Member m = new Member();
-        m.setAlias("lab_tester");
+        m.setAlias("测试用户");
         m.setPwd("e10adc3949ba59abbe56e057f20f883e");
         m.setSalt("abcdef");
 
         int cnt = memberMapper.save(m);
-        System.out.println("[Test] insertMember => rows=" + cnt + ", id=" + m.getId());
+        System.out.println("[测试] 新增用户 => 影响行数=" + cnt + ", 分配ID=" + m.getId());
         assertEquals(1, cnt);
         assertNotNull(m.getId());
     }
 
-    // ---------- SellerMapper ----------
+    // ---------- 商家表测试 ----------
 
     @Test
-    void lookupSellerById() {
+    void 根据ID查询商家() {
         Seller s = sellerMapper.findById(1L);
-        System.out.println("[Test] lookupSellerById => " + s);
-        assertNotNull(s, "Seller 1 should exist");
+        System.out.println("[测试] 根据ID查询商家 => " + s);
+        assertNotNull(s, "ID为1的商家应存在");
     }
 
     @Test
-    void listActiveSellers() {
+    void 查询启用状态的商家() {
         List<Seller> list = sellerMapper.findAllActive();
-        System.out.println("[Test] activeSellers => count=" + list.size());
+        System.out.println("[测试] 启用状态的商家 => 数量=" + list.size());
         list.forEach(System.out::println);
         assertFalse(list.isEmpty());
     }
 
-    // ---------- ProductMapper ----------
+    // ---------- 商品表测试 ----------
 
     @Test
-    void lookupProductById() {
+    void 根据ID查询商品() {
         Product p = productMapper.findById(1L);
-        System.out.println("[Test] lookupProductById => " + p);
-        assertNotNull(p, "Product 1 should exist");
+        System.out.println("[测试] 根据ID查询商品 => " + p);
+        assertNotNull(p, "ID为1的商品应存在");
         assertEquals(1L, p.getSellerId());
-        System.out.println("  name=" + p.getProductName() + ", price=" + p.getPrice() + ", stock=" + p.getStock());
+        System.out.println("  商品名=" + p.getProductName() + ", 价格=" + p.getPrice() + ", 库存=" + p.getStock());
     }
 
     @Test
-    void listProductsBySeller() {
+    void 根据商家ID查询商品列表() {
         List<Product> list = productMapper.findBySellerId(1L);
-        System.out.println("[Test] productsBySeller(1) => count=" + list.size());
+        System.out.println("[测试] 商家1的商品列表 => 数量=" + list.size());
         list.forEach(System.out::println);
         assertFalse(list.isEmpty());
     }
 
     @Test
     @Transactional
-    void insertProduct() {
+    void 新增商品() {
         Product p = new Product();
         p.setSellerId(1L);
-        p.setProductName("Lab Sample Mug");
+        p.setProductName("测试马克杯");
         p.setImageUrl("https://example.com/mug.png");
         p.setPrice(new BigDecimal("49.90"));
         p.setStock(100);
 
         int cnt = productMapper.save(p);
-        System.out.println("[Test] insertProduct => rows=" + cnt + ", id=" + p.getId());
+        System.out.println("[测试] 新增商品 => 影响行数=" + cnt + ", 分配ID=" + p.getId());
         assertEquals(1, cnt);
         assertNotNull(p.getId());
     }
 
-    // ---------- FlashItemMapper (core) ----------
+    // ---------- 秒杀配置表测试（核心） ----------
 
     @Test
-    void lookupFlashItemByProductId() {
+    void 根据商品ID查询秒杀配置() {
         FlashItem fi = flashItemMapper.findByProductId(1L);
-        System.out.println("[Test] flashItemByProduct(1) => " + fi);
-        assertNotNull(fi, "Flash config for product 1 should exist");
+        System.out.println("[测试] 商品1的秒杀配置 => " + fi);
+        assertNotNull(fi, "商品1应有对应的秒杀配置");
         assertEquals(new BigDecimal("9999.00"), fi.getFlashPrice());
         assertEquals(10, fi.getRemaining());
         assertEquals(0, fi.getVersion());
     }
 
     @Test
-    void listActiveFlashItems() {
+    void 查询当前生效的秒杀活动() {
         List<FlashItem> items = flashItemMapper.findActive();
-        System.out.println("[Test] activeFlashItems => count=" + items.size());
+        System.out.println("[测试] 当前生效的秒杀活动 => 数量=" + items.size());
         items.forEach(System.out::println);
-        assertFalse(items.isEmpty(), "There should be at least one active flash item");
+        assertFalse(items.isEmpty(), "应至少有一个生效中的秒杀活动");
     }
 
     @Test
     @Transactional
-    void optimisticLockDeduction() {
+    void 乐观锁扣减库存() {
         FlashItem before = flashItemMapper.findByProductId(1L);
         assertNotNull(before);
         int stockBefore = before.getRemaining();
         int verBefore = before.getVersion();
-        System.out.println("[Test] optimisticLock => before: remaining=" + stockBefore + ", ver=" + verBefore);
+        System.out.println("[测试] 乐观锁 => 扣减前: 剩余库存=" + stockBefore + ", 版本号=" + verBefore);
 
-        // correct version -> should succeed
+        // 正确版本号 → 应扣减成功
         int r1 = flashItemMapper.deductStock(before.getId(), verBefore);
-        assertEquals(1, r1, "Deduction with correct version should succeed");
+        assertEquals(1, r1, "使用正确版本号应扣减成功");
         FlashItem after = flashItemMapper.findById(before.getId());
         assertEquals(stockBefore - 1, after.getRemaining());
         assertEquals(verBefore + 1, after.getVersion());
-        System.out.println("[Test] optimisticLock => after:  remaining=" + after.getRemaining() + ", ver=" + after.getVersion());
+        System.out.println("[测试] 乐观锁 => 扣减后: 剩余库存=" + after.getRemaining() + ", 版本号=" + after.getVersion());
 
-        // stale version -> should fail
+        // 过期版本号 → 应扣减失败
         int r2 = flashItemMapper.deductStock(before.getId(), verBefore);
-        assertEquals(0, r2, "Stale version should be rejected");
-        System.out.println("[Test] optimisticLock => stale version rejected OK");
+        assertEquals(0, r2, "使用过期版本号应被拒绝");
+        System.out.println("[测试] 乐观锁 => 过期版本号已被正确拒绝");
     }
 
-    // ---------- TradeOrderMapper ----------
+    // ---------- 订单表测试 ----------
 
     @Test
     @Transactional
-    void insertAndQueryOrder() {
+    void 新增并查询订单() {
         TradeOrder o = new TradeOrder();
         o.setMemberId(1001L);
         o.setSellerId(1L);
         o.setProductId(1L);
-        o.setProductName("RTX 9090 Ti Cyber Edition");
+        o.setProductName("RTX 9090 Ti 限定版");
         o.setAmount(new BigDecimal("9999.00"));
         o.setStatus(0);
 
         int cnt = tradeOrderMapper.save(o);
-        System.out.println("[Test] insertOrder => rows=" + cnt + ", id=" + o.getId());
+        System.out.println("[测试] 新增订单 => 影响行数=" + cnt + ", 订单ID=" + o.getId());
         assertEquals(1, cnt);
         assertNotNull(o.getId());
 
         TradeOrder fetched = tradeOrderMapper.findById(o.getId());
         assertNotNull(fetched);
-        assertEquals("RTX 9090 Ti Cyber Edition", fetched.getProductName());
+        assertEquals("RTX 9090 Ti 限定版", fetched.getProductName());
         assertEquals(new BigDecimal("9999.00"), fetched.getAmount());
-        System.out.println("[Test] orderSnapshot => name=" + fetched.getProductName() + ", amount=" + fetched.getAmount());
+        System.out.println("[测试] 订单快照 => 商品名=" + fetched.getProductName() + ", 金额=" + fetched.getAmount());
     }
 
     @Test
     @Transactional
-    void updateOrderStatus() {
+    void 修改订单状态() {
         TradeOrder o = new TradeOrder();
         o.setMemberId(7777L);
         o.setSellerId(1L);
         o.setProductId(1L);
-        o.setProductName("RTX 9090 Ti Cyber Edition");
+        o.setProductName("RTX 9090 Ti 限定版");
         o.setAmount(new BigDecimal("9999.00"));
         o.setStatus(0);
         tradeOrderMapper.save(o);
@@ -186,19 +186,19 @@ class DaoLayerTest {
         assertEquals(1, rows);
         TradeOrder updated = tradeOrderMapper.findById(o.getId());
         assertEquals(1, updated.getStatus());
-        System.out.println("[Test] statusChange => order " + o.getId() + " changed to PAID");
+        System.out.println("[测试] 状态变更 => 订单 " + o.getId() + " 已更新为「已付款」");
     }
 
-    // ---------- FlashGuardMapper (idempotency) ----------
+    // ---------- 防重购表测试 ----------
 
     @Test
     @Transactional
-    void guardInsertAndDuplicateCheck() {
+    void 防重购记录插入与查重() {
         TradeOrder o = new TradeOrder();
         o.setMemberId(1001L);
         o.setSellerId(1L);
         o.setProductId(1L);
-        o.setProductName("RTX 9090 Ti Cyber Edition");
+        o.setProductName("RTX 9090 Ti 限定版");
         o.setAmount(new BigDecimal("9999.00"));
         o.setStatus(0);
         tradeOrderMapper.save(o);
@@ -208,25 +208,25 @@ class DaoLayerTest {
         g.setOrderId(o.getId());
         g.setProductId(1L);
         int cnt = flashGuardMapper.save(g);
-        System.out.println("[Test] guardInsert => rows=" + cnt + ", id=" + g.getId());
+        System.out.println("[测试] 新增防重购记录 => 影响行数=" + cnt + ", 记录ID=" + g.getId());
         assertEquals(1, cnt);
 
-        // should find the guard record
+        // 应能查到防重购记录
         FlashGuard found = flashGuardMapper.findByMemberAndProduct(1001L, 1L);
-        assertNotNull(found, "Guard record should exist");
-        System.out.println("[Test] guardLookup => " + found);
+        assertNotNull(found, "防重购记录应存在");
+        System.out.println("[测试] 查询防重购记录 => " + found);
 
-        // non-existent combo should return null
+        // 不存在的组合应返回 null
         FlashGuard miss = flashGuardMapper.findByMemberAndProduct(8888L, 1L);
-        assertNull(miss, "Non-existent combo should be null");
+        assertNull(miss, "不存在的组合应返回null");
 
-        // duplicate insert should trigger unique-index violation
+        // 重复插入应触发唯一索引冲突
         FlashGuard dup = new FlashGuard();
         dup.setMemberId(1001L);
         dup.setOrderId(o.getId());
         dup.setProductId(1L);
         assertThrows(Exception.class, () -> flashGuardMapper.save(dup),
-                "Duplicate guard should cause unique-index violation");
-        System.out.println("[Test] duplicateGuard => correctly rejected by unique index");
+                "重复插入应触发唯一索引约束异常");
+        System.out.println("[测试] 重复插入 => 已被唯一索引正确拦截");
     }
 }

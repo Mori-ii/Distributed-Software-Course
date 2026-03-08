@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 商品服务接口
+ */
 @RestController
 @RequestMapping("/v1/product")
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    /** 获取当前生效的秒杀商品列表 */
     @GetMapping("/flash/active")
     public ApiResponse<List<FlashProductVO>> activeFlashProducts() {
         return ApiResponse.ok(productService.listActiveFlashProducts());

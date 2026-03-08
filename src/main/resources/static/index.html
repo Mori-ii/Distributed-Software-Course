@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flash Sale Lab</title>
+    <title>秒杀商城</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
         .topbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;
@@ -34,11 +34,10 @@
         .alert.ok { display: block; background: #edf7ed; border: 1px solid #a3d9a5; color: #1b5e20; }
         .alert.err { display: block; background: #fdecea; border: 1px solid #f5c6cb; color: #b71c1c; }
 
-        /* product table style */
         .product-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
         .product-table th {
             background: #667eea; color: #fff; padding: 12px 16px; text-align: left; font-size: 13px;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            letter-spacing: 0.5px;
         }
         .product-table td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #444; }
         .product-table tr:last-child td { border-bottom: none; }
@@ -58,7 +57,6 @@
 
         .empty { text-align: center; color: #aaa; padding: 48px 0; font-size: 15px; }
 
-        /* order list */
         .order-row {
             background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;
@@ -71,7 +69,6 @@
         .badge-2 { background: #e3f2fd; color: #1565c0; }
         .badge-3 { background: #fce4ec; color: #c62828; }
 
-        /* toast */
         .toast-msg {
             position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
             padding: 12px 30px; border-radius: 8px; font-size: 14px; font-weight: 600;
@@ -85,17 +82,17 @@
 <body>
 
 <div class="topbar">
-    <h1>Flash Sale Lab</h1>
+    <h1>秒杀商城</h1>
     <div class="right">
         <span id="greeting"></span>
-        <button class="logout-btn" onclick="signOut()">Sign Out</button>
+        <button class="logout-btn" onclick="signOut()">退出登录</button>
     </div>
 </div>
 
 <div class="container">
     <div class="tabs">
-        <button id="tProducts" class="on" onclick="switchView('products')">Products</button>
-        <button id="tOrders" onclick="switchView('orders')">My Orders</button>
+        <button id="tProducts" class="on" onclick="switchView('products')">秒杀商品</button>
+        <button id="tOrders" onclick="switchView('orders')">我的订单</button>
     </div>
 
     <div id="productsView">
@@ -112,7 +109,7 @@
     const mid = sessionStorage.getItem('memberId');
     const alias = sessionStorage.getItem('alias');
     if (!mid) location.href = 'login.html';
-    document.getElementById('greeting').textContent = (alias || '') + ' (ID: ' + mid + ')';
+    document.getElementById('greeting').textContent = (alias || '') + '（ID: ' + mid + '）';
 
     function signOut() { sessionStorage.clear(); location.href = 'login.html'; }
 
@@ -130,7 +127,7 @@
             const r = await fetch('/v1/product/flash/active');
             const j = await r.json();
             if (j.status !== 200 || !j.payload || j.payload.length === 0) {
-                area.innerHTML = '<p class="empty">No active flash sales at the moment.</p>'; return;
+                area.innerHTML = '<p class="empty">当前没有进行中的秒杀活动</p>'; return;
             }
             let rows = j.payload.map(p => {
                 const cls = p.remaining <= 0 ? 'zero' : p.remaining <= 5 ? 'low' : 'ok';
@@ -140,15 +137,15 @@
                     <td><span class="flash-price">&yen;${p.flashPrice}</span></td>
                     <td><span class="remaining ${cls}">${p.remaining}</span></td>
                     <td><button class="snap-btn" onclick="doSnap(${p.flashId})" ${p.remaining<=0?'disabled':''}>
-                        ${p.remaining<=0?'Sold Out':'Snap'}
+                        ${p.remaining<=0?'已售罄':'立即抢购'}
                     </button></td>
                 </tr>`;
             }).join('');
             area.innerHTML = `<table class="product-table">
-                <thead><tr><th>Product</th><th>Original</th><th>Flash Price</th><th>Remaining</th><th>Action</th></tr></thead>
+                <thead><tr><th>商品名称</th><th>原价</th><th>秒杀价</th><th>剩余库存</th><th>操作</th></tr></thead>
                 <tbody>${rows}</tbody></table>`;
         } catch (e) {
-            area.innerHTML = '<p class="empty">Failed to load products. Is the server running?</p>';
+            area.innerHTML = '<p class="empty">商品加载失败，请检查服务是否启动</p>';
         }
     }
 
@@ -164,8 +161,8 @@
             const j = await r.json();
             if (j.status === 200) {
                 box.className = 'alert ok';
-                box.innerHTML = `Order placed! #${j.payload.id} — ${esc(j.payload.productName)} — &yen;${j.payload.amount}`;
-                toast('Order #' + j.payload.id + ' confirmed!', 'ok');
+                box.innerHTML = `抢购成功！订单号 #${j.payload.id} — ${esc(j.payload.productName)} — &yen;${j.payload.amount}`;
+                toast('订单 #' + j.payload.id + ' 已确认！', 'ok');
                 fetchProducts();
             } else {
                 box.className = 'alert err';
@@ -174,20 +171,20 @@
             }
         } catch (e) {
             box.className = 'alert err';
-            box.textContent = 'Request failed: ' + e.message;
+            box.textContent = '请求失败：' + e.message;
         }
     }
 
     async function fetchOrders() {
         const area = document.getElementById('orderArea');
-        area.innerHTML = '<p class="empty">Loading...</p>';
+        area.innerHTML = '<p class="empty">加载中...</p>';
         try {
             const r = await fetch('/v1/flash/my-orders?memberId=' + encodeURIComponent(mid));
             const j = await r.json();
             if (j.status !== 200 || !j.payload || j.payload.length === 0) {
-                area.innerHTML = '<p class="empty">No orders yet.</p>'; return;
+                area.innerHTML = '<p class="empty">暂无订单记录</p>'; return;
             }
-            const labels = { 0: 'Pending', 1: 'Paid', 2: 'Shipped', 3: 'Refunded' };
+            const labels = { 0: '待付款', 1: '已付款', 2: '已发货', 3: '已退款' };
             area.innerHTML = j.payload.map(o => `
                 <div class="order-row">
                     <div class="detail">
@@ -196,10 +193,10 @@
                         <span>&yen;${o.amount}</span>
                         <span>${o.createdAt ? o.createdAt.replace('T',' ') : '-'}</span>
                     </div>
-                    <span class="badge badge-${o.status}">${labels[o.status]||'Unknown'}</span>
+                    <span class="badge badge-${o.status}">${labels[o.status]||'未知'}</span>
                 </div>`).join('');
         } catch (e) {
-            area.innerHTML = '<p class="empty">Failed to load orders.</p>';
+            area.innerHTML = '<p class="empty">订单加载失败</p>';
         }
     }
 

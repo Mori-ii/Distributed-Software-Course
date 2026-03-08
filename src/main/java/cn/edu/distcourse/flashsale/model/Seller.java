@@ -2,14 +2,17 @@ package cn.edu.distcourse.flashsale.model;
 
 import lombok.Data;
 
-/** Seller / shop information — maps to {@code t_seller}. */
+/**
+ * 商家实体，对应 t_seller 表
+ */
 @Data
 public class Seller {
 
     private Long id;
 
+    /** 店铺名称 */
     private String shopName;
 
-    /** 0 = inactive, 1 = active */
+    /** 状态：0-停用, 1-启用 */
     private Integer status;
 }

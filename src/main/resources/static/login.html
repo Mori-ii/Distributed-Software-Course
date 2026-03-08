@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flash Sale Lab - Sign In</title>
+    <title>秒杀商城 - 登录</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
             min-height: 100vh; display: flex; justify-content: center; align-items: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
@@ -24,7 +24,7 @@
         }
         .nav button.on { background: #667eea; color: #fff; }
         .field { margin-bottom: 18px; }
-        .field label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; letter-spacing: 0.5px; }
         .field input {
             width: 100%; padding: 11px 14px; border: 2px solid #e0e0e0; border-radius: 8px;
             font-size: 14px; outline: none; transition: border 0.2s;
@@ -47,46 +47,46 @@
 <body>
 
 <div class="panel">
-    <h1>Flash Sale Lab</h1>
-    <p class="subtitle">Distributed Software Engineering</p>
+    <h1>秒杀商城</h1>
+    <p class="subtitle">分布式软件工程课程实验</p>
 
     <div class="nav">
-        <button id="navSignIn" class="on" onclick="toggle('signin')">Sign In</button>
-        <button id="navSignUp" onclick="toggle('signup')">Sign Up</button>
+        <button id="navSignIn" class="on" onclick="toggle('signin')">登 录</button>
+        <button id="navSignUp" onclick="toggle('signup')">注 册</button>
     </div>
 
-    <!-- sign in -->
+    <!-- 登录表单 -->
     <div id="signinBox">
         <div class="field">
-            <label>Member ID or Alias</label>
-            <input id="siAccount" type="text" placeholder="Enter your ID or alias">
+            <label>用户ID 或 昵称</label>
+            <input id="siAccount" type="text" placeholder="请输入您的ID或昵称">
         </div>
         <div class="field">
-            <label>Password</label>
-            <input id="siPwd" type="password" placeholder="Enter password">
+            <label>密码</label>
+            <input id="siPwd" type="password" placeholder="请输入密码">
         </div>
-        <button class="submit-btn" onclick="handleSignIn()">Sign In</button>
+        <button class="submit-btn" onclick="handleSignIn()">登 录</button>
         <div id="siNotice" class="notice"></div>
-        <p class="switch-tip">New here? <a href="#" onclick="toggle('signup');return false;">Create an account</a></p>
+        <p class="switch-tip">还没有账号？<a href="#" onclick="toggle('signup');return false;">立即注册</a></p>
     </div>
 
-    <!-- sign up -->
+    <!-- 注册表单 -->
     <div id="signupBox" style="display:none;">
         <div class="field">
-            <label>Alias (not purely numeric)</label>
-            <input id="suAlias" type="text" placeholder="Choose an alias" maxlength="50">
+            <label>昵称（不能为纯数字）</label>
+            <input id="suAlias" type="text" placeholder="请设置您的昵称" maxlength="50">
         </div>
         <div class="field">
-            <label>Password (min 6 chars)</label>
-            <input id="suPwd" type="password" placeholder="Create a password" minlength="6">
+            <label>密码（至少6位）</label>
+            <input id="suPwd" type="password" placeholder="请设置密码" minlength="6">
         </div>
         <div class="field">
-            <label>Confirm Password</label>
-            <input id="suPwd2" type="password" placeholder="Re-enter password">
+            <label>确认密码</label>
+            <input id="suPwd2" type="password" placeholder="请再次输入密码">
         </div>
-        <button class="submit-btn" onclick="handleSignUp()">Create Account</button>
+        <button class="submit-btn" onclick="handleSignUp()">注 册</button>
         <div id="suNotice" class="notice"></div>
-        <p class="switch-tip">Already have an account? <a href="#" onclick="toggle('signin');return false;">Sign in</a></p>
+        <p class="switch-tip">已有账号？<a href="#" onclick="toggle('signin');return false;">去登录</a></p>
     </div>
 </div>
 
@@ -104,8 +104,8 @@
         const account = document.getElementById('siAccount').value.trim();
         const pwd = document.getElementById('siPwd').value;
         const n = document.getElementById('siNotice');
-        if (!account) { notice(n, 'Please enter your ID or alias', 'err'); return; }
-        if (!pwd)     { notice(n, 'Please enter your password', 'err'); return; }
+        if (!account) { notice(n, '请输入您的ID或昵称', 'err'); return; }
+        if (!pwd)     { notice(n, '请输入密码', 'err'); return; }
 
         try {
             const res = await fetch('/v1/account/sign-in', {
@@ -117,12 +117,12 @@
             if (j.status === 200) {
                 sessionStorage.setItem('memberId', j.payload.id);
                 sessionStorage.setItem('alias', j.payload.alias);
-                notice(n, 'Success! Redirecting...', 'ok');
+                notice(n, '登录成功，正在跳转...', 'ok');
                 setTimeout(() => location.href = 'index.html', 600);
             } else {
                 notice(n, j.message, 'err');
             }
-        } catch (e) { notice(n, 'Request failed: ' + e.message, 'err'); }
+        } catch (e) { notice(n, '请求失败：' + e.message, 'err'); }
     }
 
     async function handleSignUp() {
@@ -131,10 +131,10 @@
         const pwd2  = document.getElementById('suPwd2').value;
         const n     = document.getElementById('suNotice');
 
-        if (!alias)              { notice(n, 'Please enter an alias', 'err'); return; }
-        if (/^\d+$/.test(alias)) { notice(n, 'Alias must not be purely numeric', 'err'); return; }
-        if (!pwd || pwd.length < 6) { notice(n, 'Password must be at least 6 characters', 'err'); return; }
-        if (pwd !== pwd2)        { notice(n, 'Passwords do not match', 'err'); return; }
+        if (!alias)              { notice(n, '请输入昵称', 'err'); return; }
+        if (/^\d+$/.test(alias)) { notice(n, '昵称不能是纯数字', 'err'); return; }
+        if (!pwd || pwd.length < 6) { notice(n, '密码长度至少6位', 'err'); return; }
+        if (pwd !== pwd2)        { notice(n, '两次输入的密码不一致', 'err'); return; }
 
         try {
             const res = await fetch('/v1/account/sign-up', {
@@ -144,11 +144,11 @@
             });
             const j = await res.json();
             if (j.status === 200) {
-                notice(n, `Account created! Your Member ID: <span class="highlight-id">${j.payload.id}</span><br>Use this ID or your alias to sign in.`, 'ok');
+                notice(n, `注册成功！您的用户ID：<span class="highlight-id">${j.payload.id}</span><br>请牢记此ID，可使用ID或昵称登录。`, 'ok');
             } else {
                 notice(n, j.message, 'err');
             }
-        } catch (e) { notice(n, 'Request failed: ' + e.message, 'err'); }
+        } catch (e) { notice(n, '请求失败：' + e.message, 'err'); }
     }
 
     function notice(el, html, cls) { el.className = 'notice ' + cls; el.innerHTML = html; }
