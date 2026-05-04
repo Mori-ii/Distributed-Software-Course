@@ -93,7 +93,3 @@ docker-compose up -d
 ## API 接口
 
 详见 [系统设计文档](docs/系统设计文档.md)
-
-## 课程文档
-
-详见 [系统设计文档](docs/系统设计文档.md)
